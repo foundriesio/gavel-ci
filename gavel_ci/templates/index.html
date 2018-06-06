@@ -1,0 +1,8 @@
+{%- if current_user.is_authenticated -%}
+  <ul>
+    <li><a href="#">Name {{current_user.email}}</a></li>
+    <li><a href="{{url_for('auth.logout')}}">Logout</a></li>
+  </ul>
+{%- else -%}
+<a href="{{url_for('auth.login')}}" class="btn btn-primary btn-block" style="padding: 15px 0;">Login</a>
+{%- endif -%}
