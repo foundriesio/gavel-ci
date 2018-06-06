@@ -8,3 +8,6 @@ SQLALCHEMY_DATABASE_URI = os.environ.get(
     'SQLALCHEMY_DATABASE_URI', 'sqlite:////tmp/test.db')
 
 SECRET_KEY = os.environ.get('SESSION_SECRET', 'NotSafe')
+
+GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET')

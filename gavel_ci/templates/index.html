@@ -1,6 +1,6 @@
 {%- if current_user.is_authenticated -%}
   <ul>
-    <li><a href="#">Name {{current_user.email}}</a></li>
+    <li><a href="#">Name {{current_user.name}} - {{current_user.login}}</a></li>
     <li><a href="{{url_for('auth.logout')}}">Logout</a></li>
   </ul>
 {%- else -%}
