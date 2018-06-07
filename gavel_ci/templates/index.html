@@ -1,8 +1,4 @@
-{%- if current_user.is_authenticated -%}
-  <ul>
-    <li><a href="#">Name {{current_user.name}} - {{current_user.login}}</a></li>
-    <li><a href="{{url_for('auth.logout')}}">Logout</a></li>
-  </ul>
-{%- else -%}
-<a href="{{url_for('auth.login')}}" class="btn btn-primary btn-block" style="padding: 15px 0;">Login</a>
-{%- endif -%}
+{% extends "layout.html" %}
+{% block body %}
+<h1>Welcome to Gavel CI{% if current_user.is_authenticated %}, {{current_user.name}}{% endif %}</h1>
+{% endblock %}

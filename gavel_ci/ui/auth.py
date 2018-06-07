@@ -2,9 +2,7 @@
 # Author: Andy Doan <andy@opensourcefoundries.com>
 import json
 
-from flask import (
-    Blueprint, redirect, render_template, request, session, url_for
-)
+from flask import Blueprint, redirect, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from requests_oauthlib import OAuth2Session
 
@@ -46,16 +44,11 @@ def callback():
     user.tokens = json.dumps(token)
     db.session.commit()
     login_user(user)
-    return redirect(url_for('auth.test'))
+    return redirect(url_for('jobserv.index'))
 
 
 @blueprint.route('/logout')
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('auth.test'))
-
-
-@blueprint.route('/test')
-def test():
-    return render_template('index.html')
+    return redirect(url_for('jobserv.index'))
