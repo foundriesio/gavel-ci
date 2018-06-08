@@ -2,7 +2,7 @@
 # Author: Andy Doan <andy@opensourcefoundries.com>
 import requests
 
-from flask import Blueprint, abort, render_template, request
+from flask import Blueprint, abort, make_response, render_template, request
 
 from gavel_ci.settings import JOBSERV_URL
 
@@ -65,3 +65,18 @@ def run(proj, build, run):
     artifacts = [x[len(prefix):] for x in run['artifacts']]
     run['artifacts'] = artifacts
     return render_template('run.html', project=proj, build=build, run=run)
+
+
+@blueprint.route('projects/<proj>/builds/<int:build>/<run>/artifacts/<path:p>')
+def run_artifact(proj, build, run, p):
+    url = JOBSERV_URL + '/projects/%s/builds/%d/runs/%s/%s' % (
+        proj, build, run, p)
+
+    # Allow .html to render inside app rather than a redirect
+    r = requests.get(url, allow_redirects=p.endswith('.html'))
+    if p.endswith('.html'):
+        return r.text, r.status_code, {'Content-Type': 'text/html'}
+    resp = make_response(r.text, r.status_code)
+    for k, v in r.headers.items():
+        resp.headers[k] = v
+    return resp
