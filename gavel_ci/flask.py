@@ -5,12 +5,25 @@ from flask import Flask
 from flask_migrate import Migrate
 
 from werkzeug.contrib.fixers import ProxyFix
+from werkzeug.routing import UnicodeConverter
+
+from gavel_ci.settings import PROJECT_NAME_REGEX
+
+
+class ProjectConverter(UnicodeConverter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, *kwargs)
+        if PROJECT_NAME_REGEX:
+            self.regex = PROJECT_NAME_REGEX
 
 
 def create_app(settings_object='gavel_ci.settings'):
     app = Flask(__name__)
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.config.from_object(settings_object)
+
+    ProjectConverter.settings = settings_object
+    app.url_map.converters['project'] = ProjectConverter
 
     from gavel_ci.models import db, User
     db.init_app(app)

@@ -1,6 +1,5 @@
 # Copyright (C) 2018 Open Source Foundries
 # Author: Andy Doan <andy@opensourcefoundries.com>
-
 import requests
 
 from flask import (
@@ -42,4 +41,9 @@ def _list(path):
 
 @blueprint.route('/')
 def index():
-    return render_template('index.html')
+    return render_template('index.html', data=_list('/projects/'))
+
+
+@blueprint.route('projects/<project:proj>/')
+def project(proj):
+    return render_template('project.html', project=proj)
