@@ -11,3 +11,11 @@ SECRET_KEY = os.environ.get('SESSION_SECRET', 'NotSafe')
 
 GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID')
 GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET')
+
+JOBSERV_URL = os.environ.get('JOBSERV_URL')
+if not JOBSERV_URL:
+    raise ValueError('JOBSERV_URL environment variable not defined')
+
+if JOBSERV_URL[-1] == '/':
+    # strip off trailing slash, to make url joining easy in code
+    JOBSERV_URL = JOBSERV_URL[:-1]
