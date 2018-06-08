@@ -41,7 +41,9 @@
   <tbody>
   {% for run in build.runs %}
   <tr>
-    <td>{{run.name}}</td>
+    <td>
+      <a href="{{url_for('ui.run', proj=project, build=build.build_id, run=run.name)}}">{{run.name}}</a>
+    </td>
     {% if run.status == 'PASSED' %}
     <td class="bg-success">{{run.status}}</td>
     {% elif run.status == 'FAILED' %}
