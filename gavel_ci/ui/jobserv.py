@@ -46,4 +46,5 @@ def index():
 
 @blueprint.route('projects/<project:proj>/')
 def project(proj):
-    return render_template('project.html', project=proj)
+    data = _list('/projects/%s/builds/' % proj)
+    return render_template('project.html', project=proj, data=data)
