@@ -55,3 +55,13 @@ def project(proj):
 def build(proj, build):
     build = _get('/projects/%s/builds/%d/' % (proj, build))['build']
     return render_template('build.html', project=proj, build=build)
+
+
+@blueprint.route('projects/<proj>/builds/<int:build>/<run>/')
+def run(proj, build, run):
+    run = _get('/projects/%s/builds/%d/runs/%s/' % (proj, build, run))['run']
+    prefix = JOBSERV_URL + '/projects/%s/builds/%d/runs/%s/' % (
+        proj, build, run['name'])
+    artifacts = [x[len(prefix):] for x in run['artifacts']]
+    run['artifacts'] = artifacts
+    return render_template('run.html', project=proj, build=build, run=run)
