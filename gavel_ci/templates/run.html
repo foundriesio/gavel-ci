@@ -24,6 +24,11 @@
 
   <dt class="col-sm-3">Logs</dt>
   <dd><a href="{{url_for('jobserv.run_artifact', proj=project, build=build, run=run.name, p='console.log')}}">console.log</a></dd>
+
+  {% if run.tests %}
+  <dt class="col-sm-3">Tests</dt>
+  <dd><a href="{{url_for('jobserv.tests', proj=project, build=build, run=run.name)}}">Report</a></dd>
+  {% endif %}
 </dl>
 </div>
 
