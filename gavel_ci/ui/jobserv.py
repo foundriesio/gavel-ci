@@ -80,3 +80,18 @@ def run_artifact(proj, build, run, p):
     for k, v in r.headers.items():
         resp.headers[k] = v
     return resp
+
+
+@blueprint.route('projects/<proj>/builds/<int:build>/<run>/tests/')
+def tests(proj, build, run):
+    reports = []
+    data = _get('/projects/%s/builds/%d/runs/%s/tests/' % (proj, build, run))
+    for t in data['tests']:
+        reports.append(t)
+        r = requests.get(t['url'])
+        if r.status_code != 200:
+            raise NotImplementedError()
+        t['results'] = r.json()['data']['test']['results']
+
+    return render_template(
+        'tests.html', project=proj, build=build, run=run, reports=reports)
