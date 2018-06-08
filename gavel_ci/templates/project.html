@@ -9,7 +9,7 @@
   <tbody>
   {% for build in data.builds %}
   <tr>
-    <td>{{build.build_id}}</a></td>
+    <td><a href="{{url_for('jobserv.build', proj=project, build=build.build_id)}}">{{build.build_id}}</a></td>
     {% if build.status == 'PASSED' %}
     <td class="bg-success">{{build.status}}</td>
     {% elif build.status == 'FAILED' %}
