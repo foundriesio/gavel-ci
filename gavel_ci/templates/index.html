@@ -1,4 +1,23 @@
 {% extends "layout.html" %}
 {% block body %}
 <h1>Welcome to Gavel CI{% if current_user.is_authenticated %}, {{current_user.name}}{% endif %}</h1>
+
+<h2>Projects</h2>
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr><th>Name</th></tr>
+  </thead>
+  <tbody>
+  {% for proj in data.projects %}
+  <tr>
+    <td><a href="{{url_for('jobserv.project', proj=proj.name)}}">{{proj.name}}</a></td>
+  </tr>
+  {% endfor %}
+  {% if data.next %}
+  <tr>
+    <td><a href={{data.next}}>[...]</a></td>
+  </tr>
+  {% endif %}
+  </tbody>
+</table>
 {% endblock %}
