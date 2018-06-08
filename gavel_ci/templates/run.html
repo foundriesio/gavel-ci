@@ -22,13 +22,15 @@
   <dt class="col-sm-3">Host Tag</dt>
   <dd>{{run.host_tag}}</dd>
 
+  <dt class="col-sm-3">Logs</dt>
+  <dd><a href="{{url_for('jobserv.run_artifact', proj=project, build=build, run=run.name, p='console.log')}}">console.log</a></dd>
 </dl>
 </div>
 
 <h3>Artifacts</h3>
 <ul>
 {% for a in run.artifacts %}
-  <li>{{a}}</li>
+  <li><a href="{{url_for('jobserv.run_artifact', proj=project, build=build, run=run.name, p=a)}}">{{a}}</a></li>
 {% endfor %}
 </ul>
 {% endblock %}
