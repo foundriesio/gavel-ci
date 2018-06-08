@@ -42,7 +42,8 @@
   {% for run in build.runs %}
   <tr>
     <td>
-      <a href="{{url_for('ui.run', proj=project, build=build.build_id, run=run.name)}}">{{run.name}}</a>
+      <a href="{{url_for('jobserv.run', proj=project, build=build.build_id, run=run.name)}}">{{run.name}}</a>
+      <a href="{{url_for('jobserv.run_artifact', proj=project, build=build.build_id, run=run.name, p='console.log')}}">(logs)</a>
     </td>
     {% if run.status == 'PASSED' %}
     <td class="bg-success">{{run.status}}</td>
