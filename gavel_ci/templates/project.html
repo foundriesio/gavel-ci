@@ -1,0 +1,32 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>Gavel CI Project: {{project}}</h1>
+
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr><th>Build #</th><th>Status</th><th>Trigger Name</th><th>Created</th><th>Completed</th></tr>
+  </thead>
+  <tbody>
+  {% for build in data.builds %}
+  <tr>
+    <td>{{build.build_id}}</a></td>
+    {% if build.status == 'PASSED' %}
+    <td class="bg-success">{{build.status}}</td>
+    {% elif build.status == 'FAILED' %}
+    <td class="bg-danger">{{build.status}}</td>
+    {% else %}
+    <td>{{build.status}}</td>
+    {% endif %}
+    <td>{{build.trigger_name}}</td>
+    <td>{{build.created}}</td>
+    <td>{{build.completed}}</td>
+  </tr>
+  {% endfor %}
+  {% if data.next %}
+  <tr>
+    <td><a href={{data.next}}>[...]</a></td>
+  </tr>
+  {% endif %}
+  </tbody>
+</table>
+{% endblock %}
