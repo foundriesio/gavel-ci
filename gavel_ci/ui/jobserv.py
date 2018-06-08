@@ -49,3 +49,9 @@ def index():
 def project(proj):
     data = _list('/projects/%s/builds/' % proj)
     return render_template('project.html', project=proj, data=data)
+
+
+@blueprint.route('projects/<proj>/builds/<int:build>')
+def build(proj, build):
+    build = _get('/projects/%s/builds/%d/' % (proj, build))['build']
+    return render_template('build.html', project=proj, build=build)
