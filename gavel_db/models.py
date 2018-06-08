@@ -20,6 +20,7 @@ class User(db.Model, UserMixin):
     email = db.Column(db.String(128), unique=True, nullable=False)
     login = db.Column(db.String(128), nullable=True)
     name = db.Column(db.String(128), nullable=True)
+    is_admin = db.Column(db.Boolean, default=False)
     tokens = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow())
 
