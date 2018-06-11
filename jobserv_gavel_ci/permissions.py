@@ -1,6 +1,8 @@
 # Copyright (C) 2018 Open Source Foundries
 # Author: Andy Doan <andy@opensourcefoundries.com>
 
+import requests
+
 from flask import request
 
 from jobserv.jsend import ApiError
@@ -44,8 +46,14 @@ def assert_can_promote(project, build_id):
 
 
 def internal_get(url, *args, **kwargs):
-    raise NotImplementedError()
+    headers = kwargs.setdefault('headers', {})
+    headers['Authorization'] = \
+        'Bearer ' + User.get_internal().authorization_bearer()
+    return requests.get(url, *args, **kwargs)
 
 
 def internal_post(url, *args, **kwargs):
-    raise NotImplementedError()
+    headers = kwargs.setdefault('headers', {})
+    headers['Authorization'] = \
+        'Bearer ' + User.get_internal().authorization_bearer()
+    return requests.get(url, *args, **kwargs)
