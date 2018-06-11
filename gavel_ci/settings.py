@@ -9,6 +9,11 @@ SQLALCHEMY_DATABASE_URI = os.environ.get(
 
 SECRET_KEY = os.environ.get('SESSION_SECRET', 'NotSafe')
 
+JWT_SECRET_FILE = os.environ.get('JWT_SECRET_FILE')
+if not JWT_SECRET_FILE:
+    raise RuntimeError('No JWT_SECRET_FILE defined for deployment')
+
+
 GITHUB_CLIENT_ID = os.environ.get('GITHUB_CLIENT_ID')
 GITHUB_CLIENT_SECRET = os.environ.get('GITHUB_CLIENT_SECRET')
 

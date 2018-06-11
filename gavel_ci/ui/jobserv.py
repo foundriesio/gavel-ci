@@ -3,7 +3,7 @@
 import requests
 
 from flask import (
-    Blueprint, abort, make_response, render_template, request,
+    Blueprint, abort, jsonify, make_response, render_template, request,
 )
 from flask_login import current_user
 
@@ -103,3 +103,13 @@ def tests(proj, build, run):
 
     return render_template(
         'tests.html', project=proj, build=build, run=run, reports=reports)
+
+
+@blueprint.route('projects/<project:proj>/triggers/')
+def triggers(proj):
+    secrets = []
+    for x in _get('/project-triggers/'):
+        if x['project'] == proj:
+            secrets.append(x)
+            x['secrets'] = list(x['secrets'].keys())
+    return jsonify(secrets)
