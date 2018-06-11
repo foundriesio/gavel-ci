@@ -2,7 +2,10 @@
 # Author: Andy Doan <andy@opensourcefoundries.com>
 import requests
 
-from flask import Blueprint, abort, make_response, render_template, request
+from flask import (
+    Blueprint, abort, jsonify, make_response, render_template, request
+)
+from flask_login import current_user
 
 from gavel_ci.settings import JOBSERV_URL
 
@@ -33,8 +36,13 @@ def _list(path):
 def _get(path):
     assert path[0] == '/'
 
+    headers = {}
+    if current_user.is_authenticated:
+        headers['Authorization'] = \
+            'Bearer ' + current_user.authorization_bearer()
+
     url = JOBSERV_URL + path
-    r = requests.get(url)
+    r = requests.get(url, headers=headers)
     if r.status_code != 200:
         abort(make_response(r.text, r.status_code))
     return r.json()['data']
@@ -95,3 +103,13 @@ def tests(proj, build, run):
 
     return render_template(
         'tests.html', project=proj, build=build, run=run, reports=reports)
+
+
+@blueprint.route('projects/<proj>/triggers/')
+def triggers(proj):
+    secrets = []
+    for x in _get('/project-triggers/'):
+        if x['project'] == proj:
+            secrets.append(x)
+            x['secrets'] = list(x['secrets'].keys())
+    return jsonify(secrets)
