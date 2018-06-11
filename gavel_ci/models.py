@@ -6,6 +6,8 @@ import datetime
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 
+from jobserv_gavel_ci.user import User as JobServUser
+
 db = SQLAlchemy()
 
 
@@ -19,3 +21,8 @@ class User(db.Model, UserMixin):
     is_admin = db.Column(db.Boolean, default=False)
     tokens = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow())
+
+    def authorization_bearer(self):
+        return JobServUser(
+            self.login, self.email, self.name, self.is_admin
+        ).authorization_bearer()
