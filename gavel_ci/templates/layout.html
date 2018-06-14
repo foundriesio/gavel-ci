@@ -17,6 +17,11 @@
         <div class="navbar-header">
           <a class="navbar-brand" href="#">Gavel CI <i class="fas fa-gavel"></i></a>
         </div>
+        <ul class="nav navbar-nav">
+          {%- if current_user.is_admin -%}
+          <li><a href="#" data-toggle="modal" data-target="#createProject"><span class="glyphicon glyphicon-plus"></span> Create project</a></li>
+          {%- endif -%}
+        </ul>
         <ul class="nav navbar-nav navbar-right">
           {%- if current_user.is_authenticated -%}
           <li><a href="#"><span class="glyphicon glyphicon-user"></span> {{current_user.login}}</a></li>
@@ -29,6 +34,34 @@
     </nav>
 
     <div class="container">
+
+    {%- if current_user.is_admin -%}
+    <div class="modal fade" id="createProject" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog" role="document">
+        <form method="post" action="/project/">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Create New Project</h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div class="form-group">
+                <label for="createProjectName">Name</label>
+                <input type="text" class="form-control" name="name">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+              <button type="submit" class="btn btn-primary">Create</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+    {%- endif -%}
+
 
     {% with messages = get_flashed_messages() %}
       {% if messages %}

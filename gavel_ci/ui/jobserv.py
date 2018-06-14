@@ -3,7 +3,8 @@
 import requests
 
 from flask import (
-    Blueprint, abort, jsonify, make_response, render_template, request
+    Blueprint, abort, jsonify, make_response, redirect, render_template,
+    request, url_for
 )
 from flask_login import current_user
 
@@ -51,6 +52,21 @@ def _get(path):
 @blueprint.route('/')
 def index():
     return render_template('index.html', data=_list('/projects/'))
+
+
+@blueprint.route('project/', methods=('POST',))
+def project_create():
+    name = request.form['name']
+    headers = {}
+    if current_user.is_authenticated:
+        headers['Authorization'] = \
+            'Bearer ' + current_user.authorization_bearer()
+
+    url = JOBSERV_URL + '/projects/'
+    r = requests.post(url, headers=headers, json={'name': name})
+    if r.status_code != 201:
+        abort(make_response(r.text, r.status_code))
+    return redirect(url_for('jobserv.project', proj=name))
 
 
 @blueprint.route('projects/<proj>/')
