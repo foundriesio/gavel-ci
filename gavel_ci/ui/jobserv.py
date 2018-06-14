@@ -3,7 +3,7 @@
 import requests
 
 from flask import (
-    Blueprint, abort, jsonify, make_response, redirect, render_template,
+    Blueprint, abort, flash, jsonify, make_response, redirect, render_template,
     request, url_for
 )
 from flask_login import current_user, fresh_login_required
@@ -64,6 +64,46 @@ def project_create():
 def project(proj):
     data = _list('/projects/%s/builds/' % proj)
     return render_template('project.html', project=proj, data=data)
+
+
+@blueprint.route('projects/<project:proj>/new-trigger-github/')
+def project_define_github_trigger(proj):
+    if current_user.is_authenticated and current_user.is_admin:
+        proj = _get('/projects/%s/' % proj)['project']
+        return render_template('github-trigger.html', project=proj)
+    abort(404)
+
+
+def _assert_form(proj, form):
+    required = {
+        'owner': 'GithHub Project Owner',
+        'project': 'GitHub Project',
+        'githubtok': 'GitHub Personal Access Token',
+    }
+    missing = []
+    for x in required.keys():
+        if x not in form:
+            missing.append(required[x])
+    if missing:
+        flash('Missing required fields: %s', ', '.join(missing))
+        abort(redirect(url_for(
+            'jobserv.project_define_github_trigger', proj=proj['name'])))
+
+
+@blueprint.route('projects/<project:proj>/new-trigger-github/',
+                 methods=('POST',))
+@fresh_login_required
+def project_create_github_trigger(proj):
+    if current_user.is_admin:
+        proj = _get('/projects/%s/' % proj)['project']
+        _assert_form(proj, request.form)
+        url = JOBSERV_URL + '/github/%s/webhook/' % proj['name']
+        r = current_user.authenticated_post(url, json=request.form)
+        if r.status_code != 201:
+            abort(make_response(r.text, r.status_code))
+        flash('Trigger created for GitHub project')
+        return redirect(url_for('jobserv.project', proj=proj['name']))
+    abort(404)
 
 
 @blueprint.route('projects/<project:proj>/builds/<int:build>')
