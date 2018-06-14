@@ -3,9 +3,10 @@
 import requests
 
 from flask import (
-    Blueprint, abort, jsonify, make_response, render_template, request,
+    Blueprint, abort, jsonify, make_response, redirect, render_template,
+    request, url_for
 )
-from flask_login import current_user
+from flask_login import current_user, fresh_login_required
 
 from gavel_ci.settings import JOBSERV_URL
 
@@ -46,6 +47,17 @@ def _list(path):
 @blueprint.route('/')
 def index():
     return render_template('index.html', data=_list('/projects/'))
+
+
+@blueprint.route('project/', methods=('POST',))
+@fresh_login_required
+def project_create():
+    name = request.form['name']
+    r = current_user.authenticated_post(
+        JOBSERV_URL + '/projects/', json={'name': name})
+    if r.status_code != 201:
+        abort(make_response(r.text, r.status_code))
+    return redirect(url_for('jobserv.project', proj=name))
 
 
 @blueprint.route('projects/<project:proj>/')
