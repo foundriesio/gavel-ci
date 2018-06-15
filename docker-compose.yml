@@ -1,0 +1,71 @@
+version: '3'
+
+volumes:
+  jobserv-db_data:
+  gavel-db_data:
+  shared_artifacts:
+
+services:
+  jobserv-db:
+    image: "mysql:5.7"
+    environment:
+      MYSQL_DATABASE: jobserv
+      MYSQL_USER: jobserv
+      MYSQL_PASSWORD: jobservpass
+      MYSQL_ROOT_PASSWORD: randomRoot
+    volumes:
+      - jobserv-db_data:/var/lib/mysql
+
+  gavel-db:
+    image: "mysql:5.7"
+    environment:
+      MYSQL_DATABASE: gavelci
+      MYSQL_USER: gavelci
+      MYSQL_PASSWORD: gavelgavel
+      MYSQL_ROOT_PASSWORD: randomRoot
+    volumes:
+      - gavel-db_data:/var/lib/mysql
+
+  api:
+    image: gavel-ci
+    environment:
+      SQLALCHEMY_DATABASE_URI_FMT: "mysql+pymysql://{db_user}:{db_pass}@jobserv-db/jobserv"
+      DB_USER: jobserv
+      DB_PASS: jobservpass
+      FLASK_APP: jobserv_gavel_ci.app:app
+      PERMISSIONS_MODULE: jobserv_gavel_ci.permissions
+      FLASK_DEBUG: 1
+      FLASK_AUTO_MIGRATE: /data/.jobserv-db-migrate.lock
+      STORAGE_BACKEND: jobserv.storage.local_storage
+    volumes:
+      - shared_artifacts:/data
+    command: "/srv/jobserv/wait-for jobserv-db:3306 -- /srv/gavel-ci/docker_run.sh"
+    depends_on:
+      - jobserv-db
+
+  ui:
+    image: gavel-ci
+    environment:
+      SQLALCHEMY_DATABASE_URI: "mysql+pymysql://gavelci:gavelgavel@gavel-db/gavelci"
+      FLASK_AUTO_MIGRATE: /data/.gavel-db-migrate.lock
+      FLASK_APP: gavel_ci.app:app
+      FLASK_DEBUG: 1
+      JOBSERV_URL: http://api:8000/
+    volumes:
+      - shared_artifacts:/data
+    command: "/srv/jobserv/wait-for gavel-db:3306 -- /srv/gavel-ci/docker_run.sh"
+    depends_on:
+      - api
+      - gavel-db
+
+  webserver:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - shared_artifacts:/data
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - ui
+      - api
