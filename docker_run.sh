@@ -5,16 +5,37 @@
 if [ "$FLASK_APP" == "jobserv_gavel_ci.app:app" ] ; then
 	cd /srv/jobserv
 
+	[ -d /data/secrets ] || mkdir /data/secrets
+
 	# Create the Fernet key needed for encryption of secrets
-	[ -f /data/db-encryption-key ] || python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())" > /data/db-encryption-key
-	export SECRETS_FERNET_KEY=$(cat /data/db-encryption-key)
+	FERNET_FILE="/data/secrets/db-key"
+	[ -f $FERNET_FILE ] || python3 -c "from cryptography.fernet import Fernet; print(Fernet.generate_key().decode())" > $FERNET_FILE
+	export SECRETS_FERNET_KEY=$(cat $FERNET_FILE)
 	export LOCAL_STORAGE_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe())")
 else
 	cd /srv/gavel-ci
+	if [ -f /data/secrets/GITHUB_CLIENT_ID ] ; then
+		export GITHUB_CLIENT_ID=$(cat /data/secrets/GITHUB_CLIENT_ID)
+	else
+		echo "Missing /data/secrets/GITHUB_CLIENT_ID"
+		exit 1
+	fi
+	if [ -f /data/secrets/GITHUB_CLIENT_SECRET ] ; then
+		export GITHUB_CLIENT_SECRET=$(cat /data/secrets/GITHUB_CLIENT_SECRET)
+	else
+		echo "Missing /data/secrets/GITHUB_CLIENT_SECRET"
+		exit 1
+	fi
+	for x in api.crt api.key ui.crt ui.key ; do
+		if [ ! -f /data/secrets/$x ] ; then
+			echo "Missing required SSL file(s)"
+			exit 1
+		fi
+	done
 fi
 
 # Create JWT secret needed for UI->JobServ communication
-export JWT_SECRET_FILE="${JWT_SECRET_FILE-/data/jwt-secret}"
+export JWT_SECRET_FILE="${JWT_SECRET_FILE-/data/secrets/jwt-secret}"
 python3 -c "import secrets; print(secrets.token_urlsafe())" > $JWT_SECRET_FILE
 
 create_flock_script () {
