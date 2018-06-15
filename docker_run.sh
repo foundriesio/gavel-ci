@@ -20,7 +20,7 @@ for x in api.crt api.key ui.crt ui.key ; do
 done
 
 # Create JWT secret needed for UI->JobServ communication
-export JWT_SECRET_FILE="${JWT_SECRET_FILE-/data/jwt-secret}"
+export JWT_SECRET_FILE="${JWT_SECRET_FILE-/data/secrets/jwt-secret}"
 python3 -c "import secrets; print(secrets.token_urlsafe())" > $JWT_SECRET_FILE
 
 create_flock_script () {

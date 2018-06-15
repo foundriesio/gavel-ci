@@ -1,0 +1,106 @@
+version: '3'
+
+volumes:
+  jobserv-db_data:
+  gavel-db_data:
+  shared_artifacts:
+
+services:
+  jobserv-db:
+    image: "mysql:5.7"
+    environment:
+      MYSQL_DATABASE: jobserv
+      MYSQL_USER: jobserv
+      MYSQL_PASSWORD: jobservpass
+      MYSQL_ROOT_PASSWORD: randomRoot
+    volumes:
+      - jobserv-db_data:/var/lib/mysql
+
+  gavel-db:
+    image: "mysql:5.7"
+    environment:
+      MYSQL_DATABASE: gavelci
+      MYSQL_USER: gavelci
+      MYSQL_PASSWORD: gavelgavel
+      MYSQL_ROOT_PASSWORD: randomRoot
+    volumes:
+      - gavel-db_data:/var/lib/mysql
+
+  api:
+    image: doanac/jobserv
+    environment:
+      SQLALCHEMY_DATABASE_URI_FMT: "mysql+pymysql://{db_user}:{db_pass}@jobserv-db/jobserv"
+      DB_USER: jobserv
+      DB_PASS: jobservpass
+      PERMISSIONS_MODULE: gavel_permissions
+      FLASK_DEBUG: 1
+      FLASK_AUTO_MIGRATE: /data/.jobserv-db-migrate.lock
+      STORAGE_BACKEND: jobserv.storage.local_storage
+      BUILD_URL_FMT: "https://gavelci.us/projects/{project}/builds/{build}/"
+      RUN_URL_FMT: "https://gavelci.us/projects/{project}/builds/{build}/{run}"
+    volumes:
+      - shared_artifacts:/data
+      - ./gavel_jwt.py:/srv/jobserv/gavel_jwt.py
+      - ./gavel_permissions.py:/srv/jobserv/gavel_permissions.py
+      - ./jobserv_run.sh:/srv/jobserv/jobserv_run.sh
+    command: "/srv/jobserv/wait-for jobserv-db:3306 -- /srv/jobserv/jobserv_run.sh"
+    depends_on:
+      - jobserv-db
+
+  ui:
+    image: gavel-ci
+    environment:
+      SQLALCHEMY_DATABASE_URI: "mysql+pymysql://gavelci:gavelgavel@gavel-db/gavelci"
+      FLASK_AUTO_MIGRATE: /data/.gavel-db-migrate.lock
+      # FLASK_DEBUG: 1
+      JOBSERV_URL: http://api:8000/
+    volumes:
+      - shared_artifacts:/data
+    command: "/srv/gavel-ci/wait-for gavel-db:3306 -- /srv/gavel-ci/docker_run.sh"
+    depends_on:
+      - api
+      - gavel-db
+
+  webserver:
+    image: nginx
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - shared_artifacts:/data
+    ports:
+      - 80:80
+      - 443:443
+    depends_on:
+      - ui
+      - api
+
+  worker-monitor:
+    image: doanac/jobserv
+    # We are technically dependent on mysql. However, we are dependent on the
+    # jobserv to actually do db migrations. Therefore, we wait on the jobserv
+    # instead of mysql.
+    command: "/srv/jobserv/wait-for -t 30 api:8000 -- flask monitor-workers"
+    environment:
+      RUN_URL_FMT: "https://gavelci.us/projects/{project}/builds/{build}/{run}"
+      SQLALCHEMY_DATABASE_URI_FMT: "mysql+pymysql://{db_user}:{db_pass}@jobserv-db/jobserv"
+      DB_USER: jobserv
+      DB_PASS: jobservpass
+    volumes:
+      - shared_artifacts:/data
+    depends_on:
+      - api
+
+  git-poller:
+    image: doanac/jobserv
+    command: "/srv/jobserv/wait-for -t 30 api:8000 -- flask run-git-poller"
+    environment:
+      STORAGE_BACKEND: jobserv.storage.local_storage
+      JOBSERV_URL: http://api:8000/
+      PERMISSIONS_MODULE: gavel_permissions
+      JWT_SECRET_FILE: "${JWT_SECRET_FILE-/data/secrets/jwt-secret}"
+      GIT_POLLER_INTERVAL: "${GIT_POLLER_INTERVAL-90}"
+    depends_on:
+      - api
+    volumes:
+      - shared_artifacts:/data
+      - ./gavel_jwt.py:/srv/jobserv/gavel_jwt.py
+      - ./gavel_permissions.py:/srv/jobserv/gavel_permissions.py
