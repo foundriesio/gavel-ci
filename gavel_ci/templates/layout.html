@@ -18,6 +18,7 @@
           <a class="navbar-brand" href="#">Gavel CI <i class="fas fa-gavel"></i></a>
         </div>
         <ul class="nav navbar-nav">
+          <li><a href="{{url_for('jobserv.status')}}"><span class="glyphicon glyphicon-dashboard"></span> Status</a></li>
           {%- if current_user.is_admin -%}
           <li><a href="#" data-toggle="modal" data-target="#createProject"><span class="glyphicon glyphicon-plus"></span> Create project</a></li>
           {%- endif -%}

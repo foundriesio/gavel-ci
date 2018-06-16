@@ -54,6 +54,13 @@ def index():
     return render_template('index.html', data=_list('/projects/'))
 
 
+@blueprint.route('status/')
+def status():
+    health = _get('/health/runs/')
+    workers = _get('/workers/')['workers']
+    return render_template('status.html', health=health, workers=workers)
+
+
 @blueprint.route('project/', methods=('POST',))
 def project_create():
     name = request.form['name']

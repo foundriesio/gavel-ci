@@ -1,0 +1,75 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>Status</h1>
+
+<h3>Queued Runs</h3>
+<table class="table  table-condensed">
+  <thead>
+    <tr>
+      <th>Created</th>
+      <th>Project</th>
+      <th>Build</th>
+      <th>Run</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for run in health.QUEUED %}
+    <tr>
+      <td>{{run.created}}</td>
+      <td>{{run.project}}</td>
+      <td>{{run.build}}</td>
+      <td><a href="{{url_for('jobserv.run', proj=run.project, build=run.build, run=run.run)}}">{{run.run}}</a></td>
+    </tr>
+{% endfor %}
+  </tbody>
+</table>
+
+<h3>Active Runs</h3>
+<table class="table  table-condensed">
+  <thead>
+    <tr>
+      <th>Worker</th>
+      <th>Created</th>
+      <th>Project</th>
+      <th>Build</th>
+      <th>Run</th>
+    </tr>
+  </thead>
+  <tbody>
+{% for worker, runs in health.RUNNING %}
+{% for run in runs %}
+    <tr>
+      <td>{{worker}}</td>
+      <td>{{run.created}}</td>
+      <td>{{run.project}}</td>
+      <td>{{run.build}}</td>
+      <td><a href="{{url_for('jobserv.run', proj=run.project, build=run.build, run=run.run)}}">{{run.run}}</a></td>
+    </tr>
+{% endfor %}
+{% endfor %}
+  </tbody>
+</table>
+
+<h3>Workers</h3>
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr><th>Name</th><th>Enlisted</th><th>Online</th><th>Surges</th><th>Tags</th><th>Concurrent Runs</th><th>CPUs</th><th>Memory</th><th>Distro</th></tr>
+  </thead>
+  <tbody>
+  {% for worker in workers %}
+  <tr>
+    <td>{{worker.name}}</td>
+    <td class="{% if worker.enlisted %}text-success{% else %}text-danger{% endif %}">{{worker.enlisted}}</td>
+    <td class="{% if worker.online %}text-success{% else %}text-danger{% endif %}">{{worker.online}}</td>
+    <td>{{worker.surges_only}}</td>
+    <td>{{worker.host_tags|join(', ')}}</td>
+    <td>{{worker.concurrent_runs}}</td>
+    <td>{{worker.cpu_total}} {{worker.cpu_type}}</td>
+    <td>{{(worker.mem_total / 1024 / 1024 / 1000) | round}}GB</td>
+    <td>{{worker.distro}}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% endblock %}
