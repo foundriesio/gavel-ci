@@ -39,6 +39,7 @@ def assert_internal_user():
     u = User.authenticate(request.headers)
     if not u or not u.is_admin:
         raise ApiError(403, 'You are not allowed to perform this operation')
+    return u
 
 
 def assert_can_promote(project, build_id):
