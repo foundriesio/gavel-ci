@@ -1,0 +1,51 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>About</h1>
+
+<p>Gavel CI is a demonstration of how to turn the
+<a href="https://github.com/foundriesio/jobserv/">JobServ CI Engine</a>
+into a secure and usable system. It takes a novel(or lazy) approach of
+demonstrating the step-by-step process by making each commit of the Git
+repository describe and show how things can be done. This project was created
+to show people how with a very little effort a high quality CI system can be
+built using the JobServ as a base.</p>
+
+<p>The project uses GitHub as its oauth2 login provider and also makes it easy
+to create CI jobs triggered by  Pull Requests. If this is all you need from a
+CI system, then the code could be used as-is. However, its really intended to
+be used a starting point to show you where and how you can create
+customizations that fit your organizations needs</p>
+
+<h3>Why Would You Do This?</h3>
+<p> In short, life's too short to deal with bad CI. In addition to all the
+points presented in the JobServ's <a href="https://github.com/OpenSourceFoundries/jobserv/blob/master/README.md">
+README</a>, I finally hit a point in 2016 where I couldn't understand why
+CI servers all seemed to be bad combinations of:
+<ul>
+  <li>Complexity in the server implementation</li>
+  <li>Complexity in creating CI jobs</li>
+  <li>Not open source</li>
+  <li>Hard to scale</li>
+  <li>Can't do HA</li>
+</ul>
+I started thinking about things over Thanksgiving and became convinced that
+implementing a good CI system <u>shouldn't be that hard</u>. As of mid-2018
+the entire JobServ server is still under 3,000 lines (<i>using "wc -l *"</i>).
+CI "worker" script is only 530. Many similar projects are hundreds of thousands
+of lines. Despite the small code the system can boast some nice features:
+<ul>
+ <li>Highly Available - I intentionally update the server (new container,
+    db schema changes, etc) while CI jobs are running.</li>
+ <li>Simulator - Anyone can repeat/test CI jobs just as they'd run on the
+     server.</li>
+ <li>The Worker model used is really scalable and makes it easy for people to
+     contribute "Surge Workers".</li>
+</ul>
+
+<h3>What Next</h3>
+Browse through the <a href="https://github.com/doanac/gavel-ci/commits/master">
+commit history</a> starting from the beginng and read your way up to the point
+it can run itself inside docker-compose.
+
+
+{% endblock %}

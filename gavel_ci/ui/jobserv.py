@@ -54,6 +54,11 @@ def index():
     return render_template('index.html', data=_list('/projects/'))
 
 
+@blueprint.route('about/')
+def about():
+    return render_template('about.html')
+
+
 @blueprint.route('status/')
 def status():
     health = _get('/health/runs/')
