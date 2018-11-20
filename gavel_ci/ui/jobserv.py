@@ -90,6 +90,19 @@ def run_artifact(proj, build, run, p):
     return resp
 
 
+@blueprint.route('projects/<proj>/builds/<int:build>/<run>/.simulate.sh')
+def run_simulate(proj, build, run):
+    url = JOBSERV_URL + '/projects/%s/builds/%d/runs/%s/.simulate.sh' % (
+        proj, build, run)
+
+    # Allow .html to render inside app rather than a redirect
+    r = requests.get(url)
+    resp = make_response(r.text, r.status_code)
+    for k, v in r.headers.items():
+        resp.headers[k] = v
+    return resp
+
+
 @blueprint.route('projects/<proj>/builds/<int:build>/<run>/tests/')
 def tests(proj, build, run):
     reports = []

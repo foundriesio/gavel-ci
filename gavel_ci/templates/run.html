@@ -30,6 +30,8 @@
   <dd><a href="{{url_for('jobserv.tests', proj=project, build=build, run=run.name)}}">Report</a></dd>
   {% endif %}
 </dl>
+
+<a href="{{url_for('jobserv.run_simulate', proj=project, build=build, run=run.name)}}" class="btn btn-primary">Execute in simulator</a>
 </div>
 
 <h3>Artifacts</h3>
