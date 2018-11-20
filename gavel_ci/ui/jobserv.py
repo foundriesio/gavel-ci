@@ -12,7 +12,7 @@ from gavel_ci.settings import JOBSERV_URL
 blueprint = Blueprint('jobserv', __name__, url_prefix='/')
 
 
-def _get(path):
+def _raw_get(path):
     assert path[0] == '/'
 
     get = requests.get
@@ -20,7 +20,11 @@ def _get(path):
         get = current_user.authenticated_get
 
     url = JOBSERV_URL + path
-    r = get(url)
+    return get(url)
+
+
+def _get(path):
+    r = _raw_get(path)
     if r.status_code != 200:
         abort(make_response(r.text, r.status_code))
     return r.json()['data']
@@ -69,16 +73,21 @@ def run(proj, build, run):
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
                  'artifacts/<path:p>')
 def run_artifact(proj, build, run, p):
-    url = JOBSERV_URL + '/projects/%s/builds/%d/runs/%s/%s' % (
-        proj, build, run, p)
-
     # Allow .html to render inside app rather than a redirect
-    get = requests.get
-    if current_user.is_authenticated:
-        get = current_user.authenticated_get
-    r = get(url, allow_redirects=p.endswith('.html'))
+    r = _raw_get('/projects/%s/builds/%d/runs/%s/%s' % (proj, build, run, p))
     if p.endswith('.html'):
         return r.text, r.status_code, {'Content-Type': 'text/html'}
+    resp = make_response(r.text, r.status_code)
+    for k, v in r.headers.items():
+        resp.headers[k] = v
+    return resp
+
+
+@blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
+                 '.simulate.sh')
+def run_simulate(proj, build, run):
+    r = _raw_get('/projects/%s/builds/%d/runs/%s/.simulate.sh' % (
+        proj, build, run))
     resp = make_response(r.text, r.status_code)
     for k, v in r.headers.items():
         resp.headers[k] = v
