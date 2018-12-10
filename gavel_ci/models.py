@@ -61,3 +61,11 @@ class ApiToken(db.Model):
         self.user_id = user.id
         self.description = description
         self.value = bcrypt.hashpw(value.encode(), bcrypt.gensalt())
+
+    @classmethod
+    def find_user(clazz, user, token):
+        token = token.encode()
+        tokens = clazz.query.join(User).filter(User.login == user)
+        for t in tokens:
+            if bcrypt.checkpw(token, t.value.encode()):
+                return t.user
