@@ -2,6 +2,9 @@
 # Author: Andy Doan <andy@opensourcefoundries.com>
 
 import datetime
+import secrets
+
+import bcrypt
 
 from flask_login import UserMixin
 from flask_sqlalchemy import SQLAlchemy
@@ -22,7 +25,39 @@ class User(db.Model, UserMixin):
     tokens = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow())
 
+    api_tokens = db.relationship('ApiToken')
+
     def authorization_bearer(self):
         return JobServUser(
             self.login, self.email, self.name, self.is_admin
         ).authorization_bearer()
+
+    def create_token(self, description):
+        value = secrets.token_urlsafe()
+        db.session.add(ApiToken(self, description, value))
+        db.session.commit()
+        return value
+
+    def delete_token(self, token_id):
+        for t in self.api_tokens:
+            if t.id == token_id:
+                db.session.delete(t)
+                db.session.commit()
+                return True
+
+
+class ApiToken(db.Model):
+    __tablename__ = 'apitokens'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey(User.id), nullable=False)
+    description = db.Column(db.String(80), nullable=True)
+    last_used = db.Column(db.DateTime, nullable=True)
+    value = db.Column(db.String(80), nullable=False)
+
+    user = db.relationship(User)
+
+    def __init__(self, user, description, value):
+        self.user_id = user.id
+        self.description = description
+        self.value = bcrypt.hashpw(value.encode(), bcrypt.gensalt())

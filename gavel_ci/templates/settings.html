@@ -26,4 +26,32 @@
   </div>
 </fieldset>
 </form>
+
+<h3>API Tokens</h3>
+<div class="col-xs-12 col-sm-6">
+  <form method="post" action="{{url_for('settings.token_create')}}">
+    <div class="form-group">
+      <label for="description">Create new token with description</label>
+      <input name="description" type="text" class="form-control"/>
+      <button type="submit" class="btn btn-primary btn-sm">Create Token</button>
+    </div>
+  </form>
+</div>
+
+<table class="table table-condensed table-hover">
+  <thead>
+    <tr><th>Description</th><th>Last Used</th><th>Actions</th></tr>
+  </thead>
+  <tbody>
+  {% for token in user.api_tokens %}
+    <tr>
+      <td>{{token.description}}</td>
+      <td>
+        <i>{% if token.last_used %}{{token.last_used}}{% else %}Never{% endif %}</i>
+      </td>
+      <td><a href="{{url_for('settings.token_delete', token=token.id)}}" class="btn btn-sm btn-danger"><i class="fa fa-trash"></i></a></td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
 {% endblock %}
