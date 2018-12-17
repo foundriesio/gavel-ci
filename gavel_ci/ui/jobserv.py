@@ -1,9 +1,43 @@
 # Copyright (C) 2018 Open Source Foundries
 # Author: Andy Doan <andy@opensourcefoundries.com>
 
-from flask import Blueprint, render_template
+import requests
+
+from flask import (
+    Blueprint, abort, make_response, render_template, request,
+)
+from flask_login import current_user
+
+from gavel_ci.settings import JOBSERV_URL
 
 blueprint = Blueprint('jobserv', __name__, url_prefix='/')
+
+
+def _get(path):
+    assert path[0] == '/'
+
+    get = requests.get
+    if current_user.is_authenticated:
+        get = current_user.authenticated_get
+
+    url = JOBSERV_URL + path
+    r = get(url)
+    if r.status_code != 200:
+        abort(make_response(r.text, r.status_code))
+    return r.json()['data']
+
+
+def _list(path):
+    p = request.args.get('page')
+    if p:
+        path += '?page=%s&limit=%s' % (p, request.args.get('limit', '25'))
+
+    data = _get(path)
+    next_page = data.get('next')
+    if next_page:
+        # just get the query params
+        data['next'] = next_page.rsplit('/', 1)[-1]
+    return data
 
 
 @blueprint.route('/')
