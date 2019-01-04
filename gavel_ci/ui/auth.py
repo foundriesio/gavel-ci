@@ -6,6 +6,7 @@ from flask import Blueprint, redirect, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from requests_oauthlib import OAuth2Session
 
+from gavel_ci.flask import user_logged_in
 from gavel_ci.models import User, db
 from gavel_ci.settings import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
 
@@ -43,6 +44,7 @@ def callback():
     user.name = data['name']
     user.tokens = json.dumps(token)
     db.session.commit()
+    user_logged_in.send(user)
     login_user(user)
     return redirect(url_for('jobserv.index'))
 

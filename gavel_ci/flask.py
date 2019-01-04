@@ -1,6 +1,7 @@
 # Copyright (C) 2018 Open Source Foundries
 # Author: Andy Doan <andy@opensourcefoundries.com>
 
+from blinker import Namespace
 from flask import Flask
 from flask_migrate import Migrate
 
@@ -8,6 +9,9 @@ from werkzeug.contrib.fixers import ProxyFix
 from werkzeug.routing import UnicodeConverter
 
 from gavel_ci.settings import PROJECT_NAME_REGEX
+
+event_signals = Namespace()
+user_logged_in = event_signals.signal('user_logged_in')
 
 
 class ProjectConverter(UnicodeConverter):

@@ -8,3 +8,4 @@ flask==1.0.2
 gunicorn==19.9.0
 pyjwt==1.6.4
 requests==2.20.1
+blinker==1.4
