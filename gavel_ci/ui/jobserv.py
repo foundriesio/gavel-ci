@@ -158,6 +158,18 @@ def run_simulate(proj, build, run):
     return resp
 
 
+@blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/rerun',
+                 methods=('POST',))
+@fresh_login_required
+def run_rerun(proj, build, run):
+    url = JOBSERV_URL + '/projects/%s/builds/%s/runs/%s/rerun' % (
+        proj, build, run)
+    r = current_user.authenticated_post(url)
+    if r.status_code != 200:
+        abort(make_response(r.text, r.status_code))
+    return redirect(url_for('jobserv.run', proj=proj, build=build, run=run))
+
+
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/tests/')
 def tests(proj, build, run):
     get = requests.get

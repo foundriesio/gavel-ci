@@ -30,9 +30,16 @@
   <dd><a href="{{url_for('jobserv.tests', proj=project, build=build, run=run.name)}}">Report</a></dd>
   {% endif %}
 </dl>
-
-<a href="{{url_for('jobserv.run_simulate', proj=project, build=build, run=run.name)}}" class="btn btn-primary">Execute in simulator</a>
 </div>
+
+<form method="post" action="{{url_for('jobserv.run_rerun', proj=project, build=build, run=run.name)}}">
+  <div class="btn-toolbar">
+     <a href="{{url_for('jobserv.run_simulate', proj=project, build=build, run=run.name)}}" class="btn btn-primary">Execute in simulator</a>
+{%- if current_user.is_admin -%}
+     <input type="submit" class="btn btn-primary" value="Re-run">
+{%- endif -%}
+  </div>
+</form>
 
 <h3>Artifacts</h3>
 <ul>
