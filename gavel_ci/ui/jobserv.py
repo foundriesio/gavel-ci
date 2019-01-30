@@ -13,7 +13,7 @@ from gavel_ci.settings import JOBSERV_URL
 blueprint = Blueprint('jobserv', __name__, url_prefix='/')
 
 
-def _raw_get(path):
+def _raw_get(path, **kwargs):
     assert path[0] == '/'
 
     get = requests.get
@@ -21,7 +21,7 @@ def _raw_get(path):
         get = current_user.authenticated_get
 
     url = JOBSERV_URL + path
-    return get(url)
+    return get(url, **kwargs)
 
 
 def _get(path):
@@ -138,7 +138,12 @@ def run(proj, build, run):
                  'artifacts/<path:p>')
 def run_artifact(proj, build, run, p):
     # Allow .html to render inside app rather than a redirect
-    r = _raw_get('/projects/%s/builds/%d/runs/%s/%s' % (proj, build, run, p))
+    allow_redirects = False
+    if p.endswith('.html') or p.endswith('.log') or p.endswith('.txt'):
+        # show .txt, log, and .html files inline
+        allow_redirects = True
+    r = _raw_get('/projects/%s/builds/%d/runs/%s/%s' % (proj, build, run, p),
+                 allow_redirects=allow_redirects)
     if p.endswith('.html'):
         return r.text, r.status_code, {'Content-Type': 'text/html'}
     resp = make_response(r.text, r.status_code)
