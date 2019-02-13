@@ -2,6 +2,8 @@
 # Author: Andy Doan <andy@opensourcefoundries.com>
 import json
 
+from urllib.parse import urlparse, urljoin
+
 from flask import Blueprint, redirect, request, session, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 from requests_oauthlib import OAuth2Session
@@ -11,6 +13,13 @@ from gavel_ci.models import User, db
 from gavel_ci.settings import GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET
 
 blueprint = Blueprint('auth', __name__, url_prefix='/auth')
+
+
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+        ref_url.netloc == test_url.netloc
 
 
 @blueprint.route('/login')
@@ -24,6 +33,11 @@ def login():
 
     # State is used to prevent CSRF, keep this for later.
     session['oauth_state'] = state
+    destination = request.args.get('next')
+    # is_safe_url should check if the url is safe for redirects.
+    # See http://flask.pocoo.org/snippets/62/ for an example.
+    if is_safe_url(destination):
+        session['next'] = destination
     return redirect(authorization_url)
 
 
@@ -46,6 +60,9 @@ def callback():
     db.session.commit()
     user_logged_in.send(user)
     login_user(user)
+    destination = session.get('next')
+    if destination:
+        return redirect(destination)
     return redirect(url_for('jobserv.index'))
 
 
