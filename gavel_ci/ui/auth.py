@@ -16,7 +16,7 @@ blueprint = Blueprint('auth', __name__, url_prefix='/auth')
 @blueprint.route('/login')
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('auth.test'))
+        return redirect(url_for('jobserv.index'))
 
     github = OAuth2Session(GITHUB_CLIENT_ID)
     authorization_url, state = github.authorization_url(

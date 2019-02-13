@@ -26,7 +26,9 @@ def _raw_get(path, **kwargs):
 
 def _get(path):
     r = _raw_get(path)
-    if r.status_code != 200:
+    if r.status_code == 401:
+        abort(redirect(url_for('auth.login')))
+    elif r.status_code != 200:
         abort(make_response(r.text, r.status_code))
     return r.json()['data']
 
