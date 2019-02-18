@@ -1,6 +1,10 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1>Gavel CI Build: {{project}} #{{build}} - {{run.name}}</h1>
+<h1>Gavel CI Build:
+  <a href="{{url_for('jobserv.project', proj=project)}}">{{project}}</a>
+  <a href="{{url_for('jobserv.build', proj=project, build=build)}}">#{{build}}</a>
+  - {{run.name}}
+</h1>
 
 <div style="padding-left: 20px;">
 <dl class="row">
