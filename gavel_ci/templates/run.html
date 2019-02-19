@@ -26,6 +26,9 @@
   <dt class="col-sm-3">Host Tag</dt>
   <dd>{{run.host_tag}}</dd>
 
+  <dt class="col-sm-3">JobServ Host</dt>
+  <dd>{{run.worker_name}}</dd>
+
   <dt class="col-sm-3">Logs</dt>
   <dd><a href="{{url_for('jobserv.run_artifact', proj=project, build=build, run=run.name, p='console.log')}}">console.log</a></dd>
 
