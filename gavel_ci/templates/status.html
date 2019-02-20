@@ -16,8 +16,8 @@
 {% for run in health.QUEUED %}
     <tr>
       <td>{{run.created}}</td>
-      <td>{{run.project}}</td>
-      <td>{{run.build}}</td>
+      <td><a href="{{url_for('jobserv.project', proj=run.project)}}">{{run.project}}</a></td>
+      <td><a href="{{url_for('jobserv.build', proj=run.project, build=run.build)}}">{{run.build}}</a></td>
       <td><a href="{{url_for('jobserv.run', proj=run.project, build=run.build, run=run.run)}}">{{run.run}}</a></td>
     </tr>
 {% endfor %}
@@ -41,8 +41,8 @@
     <tr>
       <td>{{worker}}</td>
       <td>{{run.created}}</td>
-      <td>{{run.project}}</td>
-      <td>{{run.build}}</td>
+      <td><a href="{{url_for('jobserv.project', proj=run.project)}}">{{run.project}}</a></td>
+      <td><a href="{{url_for('jobserv.build', proj=run.project, build=run.build)}}">{{run.build}}</a></td>
       <td><a href="{{url_for('jobserv.run', proj=run.project, build=run.build, run=run.run)}}">{{run.run}}</a></td>
     </tr>
 {% endfor %}
