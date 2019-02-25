@@ -36,6 +36,9 @@
   <dt class="col-sm-3">Tests</dt>
   <dd><a href="{{url_for('jobserv.tests', proj=project, build=build, run=run.name)}}">Report</a></dd>
   {% endif %}
+
+  <dt class="col-sm-3">History</dt>
+  <dd><a href="{{url_for('jobserv.project_run_history', proj=project, run=run.name)}}">Run History</a></dd>
 </dl>
 </div>
 

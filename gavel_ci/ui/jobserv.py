@@ -120,6 +120,13 @@ def project_create_github_trigger(proj):
     abort(404)
 
 
+@blueprint.route('projects/<project:proj>/history/<run>/')
+def project_run_history(proj, run):
+    history = _get('/projects/%s/history/%s/' % (proj, run))['runs']
+    return render_template(
+        'run_history.html', project=proj, run=run, history=history)
+
+
 @blueprint.route('projects/<project:proj>/builds/<int:build>')
 def build(proj, build):
     build = _get('/projects/%s/builds/%d/' % (proj, build))['build']

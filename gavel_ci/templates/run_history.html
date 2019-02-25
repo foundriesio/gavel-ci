@@ -1,0 +1,35 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>Gavel CI Run History for
+  <a href="{{url_for('jobserv.project', proj=project)}}">{{project}}</a>
+  - {{run}}
+</h1>
+
+<h3>Run</h3>
+<table class="table table-striped table-bordered">
+  <thead>
+    <tr><th>Build</th><th>Status</th><th>Duration (seconds)</th><th>Worker</th><th>Created</th><th>Completed</th></tr>
+  </thead>
+  <tbody>
+  {% for run in history %}
+  <tr>
+    <td>
+      <a href="{{url_for('jobserv.run', proj=project, build=run.build, run=run.name)}}">{{run.build}}</a>
+      <a href="{{url_for('jobserv.run_artifact', proj=project, build=run.build, run=run.name, p='console.log')}}">(logs)</a>
+    </td>
+    {% if run.status == 'PASSED' %}
+    <td class="bg-success">{{run.status}}</td>
+    {% elif run.status == 'FAILED' %}
+    <td class="bg-danger">{{run.status}}</td>
+    {% else %}
+    <td>{{run.status}}</td>
+    {% endif %}
+    <td>{{run.duration_seconds}}</td>
+    <td>{{run.worker_name}}</td>
+    <td>{{run.created}}</td>
+    <td>{{run.completed}}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
