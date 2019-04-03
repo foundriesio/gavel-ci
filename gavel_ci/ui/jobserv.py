@@ -51,6 +51,11 @@ def index():
     return render_template('index.html', data=_list('/projects/'))
 
 
+@blueprint.route('/projects/')
+def projects_list():
+    return index()
+
+
 @blueprint.route('about/')
 def about():
     return render_template('about.html')
@@ -127,7 +132,7 @@ def project_run_history(proj, run):
         'run_history.html', project=proj, run=run, history=history)
 
 
-@blueprint.route('projects/<project:proj>/builds/<int:build>')
+@blueprint.route('projects/<project:proj>/builds/<int:build>/')
 def build(proj, build):
     build = _get('/projects/%s/builds/%d/' % (proj, build))['build']
     return render_template('build.html', project=proj, build=build)
