@@ -189,6 +189,18 @@ def run_rerun(proj, build, run):
     return redirect(url_for('jobserv.run', proj=proj, build=build, run=run))
 
 
+@blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/cancel',
+                 methods=('POST',))
+@fresh_login_required
+def run_cancel(proj, build, run):
+    url = JOBSERV_URL + '/projects/%s/builds/%s/runs/%s/cancel' % (
+        proj, build, run)
+    r = current_user.authenticated_post(url)
+    if r.status_code != 202:
+        abort(make_response(r.text, r.status_code))
+    return redirect(url_for('jobserv.run', proj=proj, build=build, run=run))
+
+
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/tests/')
 def tests(proj, build, run):
     get = requests.get

@@ -80,6 +80,10 @@ def assert_can_promote(project, build_id):
     assert_internal_user()
 
 
+def assert_can_build(project):
+    assert_internal_user()
+
+
 def internal_get(url, *args, **kwargs):
     return JobServUser.get_internal().authenticated_get(url, *args, **kwargs)
 

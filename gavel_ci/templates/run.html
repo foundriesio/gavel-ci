@@ -11,7 +11,7 @@
   <dt class="col-sm-3">Status</dt>
   {% if run.status == 'PASSED' %}
   <dd class="text-success">{{run.status}}</dd>
-  {% elif run.status == 'FAILED' %}
+  {% elif run.status in ('FAILED', 'CANCELLING') %}
   <dd class="text-danger">{{run.status}}</dd>
   {% else %}
   <dd>{{run.status}}</dd>
@@ -48,6 +48,12 @@
      <form method="post" action="{{url_for('jobserv.run_rerun', proj=project, build=build, run=run.name)}}">
        <input style="margin-left: 5px" type="submit" class="btn btn-primary" value="Re-run">
      </form>
+
+     {% if run.status == "RUNNING" %}
+     <form method="post" action="{{url_for('jobserv.run_cancel', proj=project, build=build, run=run.name)}}">
+       <input style="margin-left: 5px" type="submit" class="btn btn-primary" value="Terminate">
+     </form>
+     {% endif %}
 {%- endif -%}
   </div>
 
