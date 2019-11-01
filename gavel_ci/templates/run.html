@@ -42,14 +42,14 @@
 </dl>
 </div>
 
-<form method="post" action="{{url_for('jobserv.run_rerun', proj=project, build=build, run=run.name)}}">
   <div class="btn-toolbar">
      <a href="{{url_for('jobserv.run_simulate', proj=project, build=build, run=run.name)}}" class="btn btn-primary">Execute in simulator</a>
 {%- if current_user.is_admin -%}
-     <input type="submit" class="btn btn-primary" value="Re-run">
+     <form method="post" action="{{url_for('jobserv.run_rerun', proj=project, build=build, run=run.name)}}">
+       <input style="margin-left: 5px" type="submit" class="btn btn-primary" value="Re-run">
+     </form>
 {%- endif -%}
   </div>
-</form>
 
 <h3>Artifacts</h3>
 <ul>
