@@ -36,6 +36,7 @@ def create_app(settings_object='gavel_ci.settings'):
     from flask_login import LoginManager
     login_manager = LoginManager(app)
     login_manager.login_view = 'app.login'
+    login_manager.refresh_view = 'auth.login'
     login_manager.session_protection = 'strong'
 
     @login_manager.user_loader
