@@ -15,7 +15,7 @@ triggers:
       GIT_POLL_REFS: "refs/heads/master"
     runs:
       - name: build-container
-        container: docker:dind
+        container: docker:19.03.5-dind
         privileged: true
         host-tag: amd64
         script: build-container
@@ -32,7 +32,6 @@ scripts:
 
     unset DOCKER_HOST
     DOCKER_TLS_CERTDIR= /usr/local/bin/dockerd-entrypoint.sh --raw-logs >/archive/dockerd.log 2>&1 &
-    /usr/local/bin/dockerd-entrypoint.sh --raw-logs >$archive/dockerd.log 2>&1 &
     for i in `seq 10` ; do
         sleep 1
         docker info >/dev/null 2>&1 && break
