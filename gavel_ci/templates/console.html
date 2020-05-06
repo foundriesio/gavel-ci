@@ -58,10 +58,10 @@
                 var newOffset = xhr.getResponseHeader('X-OFFSET');
                 if (newStatus == 'QUEUED') {
                     if (!status) { // started
-            			updateLog(data);
-            		} else {
-            			updateLog(".");
-            		}
+                        updateLog(data);
+                    } else {
+                        updateLog(".");
+                    }
                 } else if (!newStatus) { // finished
                     showDownload();
                     updateLog(data);
@@ -69,9 +69,9 @@
                 } else {
                     if (newStatus != status) {
                         updateLog(`--- Status change: ${status} -> ${newStatus}`);
-			        }
+                    }
                     showStatus(newStatus);
-        			updateLog(data);
+                    updateLog(data);
                 }
                 offset = offset + data.length;
                 status = newStatus;
