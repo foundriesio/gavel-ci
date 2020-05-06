@@ -9,3 +9,4 @@ gunicorn==19.9.0
 pyjwt==1.6.4
 requests==2.20.1
 blinker==1.4
+Werkzeug==0.16.0

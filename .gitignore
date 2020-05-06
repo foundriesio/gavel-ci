@@ -3,3 +3,10 @@
 *.egg*
 *build/
 *dist/
+
+### IDE
+.idea/
+
+### USER
+.env
+.env.bak

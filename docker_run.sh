@@ -1,15 +1,11 @@
 #!/bin/sh -e
 
-if [ -f /data/secrets/GITHUB_CLIENT_ID ] ; then
-	export GITHUB_CLIENT_ID=$(cat /data/secrets/GITHUB_CLIENT_ID)
-else
-	echo "Missing /data/secrets/GITHUB_CLIENT_ID"
+if [ -z "$GITHUB_CLIENT_ID" ] ; then
+	echo "Missing GITHUB_CLIENT_ID"
 	exit 1
 fi
-if [ -f /data/secrets/GITHUB_CLIENT_SECRET ] ; then
-	export GITHUB_CLIENT_SECRET=$(cat /data/secrets/GITHUB_CLIENT_SECRET)
-else
-	echo "Missing /data/secrets/GITHUB_CLIENT_SECRET"
+if [ -z "$GITHUB_CLIENT_SECRET" ] ; then
+	echo "Missing GITHUB_CLIENT_SECRET"
 	exit 1
 fi
 for x in api.crt api.key ui.crt ui.key ; do
@@ -18,10 +14,10 @@ for x in api.crt api.key ui.crt ui.key ; do
 		exit 1
 	fi
 done
-
-# Create JWT secret needed for UI->JobServ communication
-export JWT_SECRET_FILE="${JWT_SECRET_FILE-/data/secrets/jwt-secret}"
-python3 -c "import secrets; print(secrets.token_urlsafe())" > $JWT_SECRET_FILE
+if [ ! -f "${JWT_SECRET_FILE}" ] ; then
+  echo "Missing JWT file"
+  exit 1
+fi
 
 create_flock_script () {
 	# /usr/bin/flock uses the "flock" call instead of fcntl.
