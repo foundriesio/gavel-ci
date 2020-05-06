@@ -46,7 +46,11 @@
   <tr>
     <td>
       <a href="{{url_for('jobserv.run', proj=project, build=build.build_id, run=run.name)}}">{{run.name}}</a>
-      <a href="{{url_for('jobserv.run_artifact', proj=project, build=build.build_id, run=run.name, p='console.log')}}">(logs)</a>
+      {%- if run.completed -%}
+        <a href="{{url_for('jobserv.run_artifact', proj=project, build=build.build_id, run=run.name, p='console.log')}}">(logs)</a>
+      {%- else -%}
+        <a href="{{url_for('jobserv.console', proj=project, build=build.build_id, run=run.name)}}">(logs)</a>
+      {%- endif %}
       {% if run.tests %}
         <a href="{{url_for('jobserv.tests', proj=project, build=build.build_id, run=run.name)}}">(tests)</a>
       {% endif %}

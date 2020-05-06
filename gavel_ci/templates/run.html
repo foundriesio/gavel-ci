@@ -30,7 +30,13 @@
   <dd>{{run.worker_name}}</dd>
 
   <dt class="col-sm-3">Logs</dt>
-  <dd><a href="{{url_for('jobserv.run_artifact', proj=project, build=build, run=run.name, p='console.log')}}">console.log</a></dd>
+  <dd>
+    {%- if run.completed -%}
+      <a href="{{url_for('jobserv.run_artifact', proj=project, build=build, run=run.name, p='console.log')}}">console.log</a>
+    {%- else -%}
+      <a href="{{url_for('jobserv.console', proj=project, build=build, run=run.name)}}">console.log</a>
+    {%- endif %}
+  </dd>
 
   {% if run.tests %}
   <dt class="col-sm-3">Tests</dt>
