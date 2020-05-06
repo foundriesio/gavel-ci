@@ -1,14 +1,26 @@
 # Copyright (C) 2018 Open Source Foundries
 # Author: Andy Doan <andy@opensourcefoundries.com>
-import requests
+import logging
 
+import requests
 from flask import (
-    Blueprint, abort, flash, jsonify, make_response, redirect, render_template,
-    request, url_for
+    abort,
+    Blueprint,
+    flash,
+    jsonify,
+    make_response,
+    redirect,
+    render_template,
+    request,
+    Response,
+    url_for,
 )
 from flask_login import current_user, fresh_login_required
 
 from gavel_ci.settings import JOBSERV_URL
+
+
+logger = logging.getLogger(__name__)
 
 blueprint = Blueprint('jobserv', __name__, url_prefix='/')
 
@@ -147,6 +159,24 @@ def run(proj, build, run):
     run['artifacts'] = artifacts
     return render_template('run.html', project=proj, build=build, run=run)
 
+
+@blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
+                 'console')
+def console(proj, build, run):
+    return render_template('console.html', proj=proj, build=build, run=run)
+
+
+@blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
+                 'console/tail')
+def console_tail(proj, build, run):
+    response = _raw_get(
+        f'/projects/{proj}/builds/{build}/runs/{run}/console.log',
+        headers={
+            'X-OFFSET': request.headers.get('X-OFFSET', '0'),
+            'Range': request.headers.get('Range', ''),
+        },
+    )
+    return response.content, response.status_code, response.headers.items()
 
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
                  'artifacts/<path:p>')
