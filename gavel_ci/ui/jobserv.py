@@ -1,7 +1,5 @@
 # Copyright (C) 2018 Open Source Foundries
 # Author: Andy Doan <andy@opensourcefoundries.com>
-import logging
-
 import requests
 from flask import (
     abort,
@@ -12,15 +10,12 @@ from flask import (
     redirect,
     render_template,
     request,
-    Response,
     url_for,
 )
 from flask_login import current_user, fresh_login_required
 
 from gavel_ci.settings import JOBSERV_URL
 
-
-logger = logging.getLogger(__name__)
 
 blueprint = Blueprint('jobserv', __name__, url_prefix='/')
 
