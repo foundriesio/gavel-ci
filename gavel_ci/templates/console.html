@@ -2,19 +2,16 @@
 {% block body %}
 <h1>Gavel CI Build: <a href="{{url_for('jobserv.project', proj=proj)}}">{{proj}}</a> <a href="{{url_for('jobserv.build',proj=proj, build=build)}}">#{{build}}</a> - {{run}}</h1>
 <h3>
-    console.log
-    <span id='console-status'></span>
+    console
     <span id='console-raw' style="display:none;">
         (<a 
           href="{{url_for('jobserv.run_artifact', proj=proj, build=build, run=run, p='console.log')}}"
           download="{{proj}}-{{build}}-{{run}}-console.log">raw</a>)
     </span>
+    <span id='console-status'></span>
 </h3>
 <div>
-    <pre
-        id="console-log-tail"
-        style="white-space: pre-wrap;"
-    ></pre>
+    <pre id="console-log-tail"></pre>
 </div>
 {% endblock %}
 {% block script %}
@@ -31,11 +28,8 @@
     var interval = 3000; /* 3s */
     let url = "/projects/{{proj}}/builds/{{build}}/{{run}}/console/tail";
     var showStatus = function (slug) {
-        let status = {
-            running: 'tailing',
-            queued: 'starting',
-        }[slug.toLowerCase()] || 'tail';
-        $(statusElement).text(status);
+        let msg = slug ? `: ${slug}` : '';
+        $(statusElement).text(msg);
     };
     var showDownload = function () {
         $(downloadElement).show();
@@ -46,6 +40,7 @@
         messageTail = messageTail.concat(messageRows);
         messageTail = messageTail.slice(Math.max(messageTail.length - messageTailWindow, 0));
         let messageContent = messageTail.join('\n');
+        console.log(`PANTERA displaying ${messageTail.length}`);
         $(tailElement).text(`...\n${messageContent}`);
     };
     var rawGet = function (url) {
@@ -55,7 +50,7 @@
             headers: {"X-OFFSET": `${offset}`, Range: "bytes=-2048"},
             success: function (data, s, xhr) {
                 var newStatus = xhr.getResponseHeader('X-RUN-STATUS');
-                var newOffset = xhr.getResponseHeader('X-OFFSET');
+                showStatus(newStatus);
                 if (newStatus == 'QUEUED') {
                     if (!status) { // started
                         updateLog(data);
@@ -70,7 +65,6 @@
                     if (newStatus != status) {
                         updateLog(`--- Status change: ${status} -> ${newStatus}`);
                     }
-                    showStatus(newStatus);
                     updateLog(data);
                 }
                 offset = offset + data.length;

@@ -170,8 +170,18 @@ def console_tail(proj, build, run):
             'X-OFFSET': request.headers.get('X-OFFSET', '0'),
             'Range': request.headers.get('Range', ''),
         },
+        timeout=1,
     )
-    return response.content, response.status_code, response.headers.items()
+    pass_through_headers = [
+        (header, value)
+        for header, value in response.headers.items()
+        if header.lower() in (
+            'cache-control',
+            'content-type',
+            'x-run-status',
+        )
+    ]
+    return response.content, response.status_code, pass_through_headers
 
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
                  'artifacts/<path:p>')
