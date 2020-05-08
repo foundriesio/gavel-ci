@@ -40,7 +40,6 @@
         messageTail = messageTail.concat(messageRows);
         messageTail = messageTail.slice(Math.max(messageTail.length - messageTailWindow, 0));
         let messageContent = messageTail.join('\n');
-        console.log(`PANTERA displaying ${messageTail.length}`);
         $(tailElement).text(`...\n${messageContent}`);
     };
     var rawGet = function (url) {
