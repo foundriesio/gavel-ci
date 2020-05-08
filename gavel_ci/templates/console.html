@@ -1,0 +1,82 @@
+{% extends "layout.html" %}
+{% block body %}
+<h1>Gavel CI Build: <a href="{{url_for('jobserv.project', proj=proj)}}">{{proj}}</a> <a href="{{url_for('jobserv.build',proj=proj, build=build)}}">#{{build}}</a> - {{run}}</h1>
+<h3>
+    console
+    <span id='console-raw' style="display:none;">
+        (<a 
+          href="{{url_for('jobserv.run_artifact', proj=proj, build=build, run=run, p='console.log')}}"
+          download="{{proj}}-{{build}}-{{run}}-console.log">raw</a>)
+    </span>
+    <span id='console-status'></span>
+</h3>
+<div>
+    <pre id="console-log-tail"></pre>
+</div>
+{% endblock %}
+{% block script %}
+{{super()}}
+<script type="text/javascript">
+(function () {
+    let tailElement = $("#console-log-tail");
+    let downloadElement = $("#console-raw");
+    let statusElement = $("#console-status");
+    var offset = 0;
+    let messageTailWindow = 40;
+    var messageTail = [];
+    var status = '';
+    var interval = 3000; /* 3s */
+    let url = "/projects/{{proj}}/builds/{{build}}/{{run}}/console/tail";
+    var showStatus = function (slug) {
+        let msg = slug ? `: ${slug}` : '';
+        $(statusElement).text(msg);
+    };
+    var showDownload = function () {
+        $(downloadElement).show();
+    }
+    var updateLog = function (message) {
+        if (!message) return;
+        const messageRows = message.split('\n');
+        messageTail = messageTail.concat(messageRows);
+        messageTail = messageTail.slice(Math.max(messageTail.length - messageTailWindow, 0));
+        let messageContent = messageTail.join('\n');
+        $(tailElement).text(`...\n${messageContent}`);
+    };
+    var rawGet = function (url) {
+        $.ajax(url, {
+            dataType: "text",
+            cache: false,
+            headers: {"X-OFFSET": `${offset}`, Range: "bytes=-2048"},
+            success: function (data, s, xhr) {
+                var newStatus = xhr.getResponseHeader('X-RUN-STATUS');
+                showStatus(newStatus);
+                if (newStatus == 'QUEUED') {
+                    if (!status) { // started
+                        updateLog(data);
+                    } else {
+                        updateLog(".");
+                    }
+                } else if (!newStatus) { // finished
+                    showDownload();
+                    updateLog(data);
+                    return;
+                } else {
+                    if (newStatus != status) {
+                        updateLog(`--- Status change: ${status} -> ${newStatus}`);
+                    }
+                    updateLog(data);
+                }
+                offset = offset + data.length;
+                status = newStatus;
+                setTimeout(function(){rawGet(url);}, interval);
+            },
+            error: function (xhr, s, t) {
+                console.error(`failed to pull console log...trying again later`);
+                setTimeout(function(){rawGet(url);}, interval);
+            }
+        });
+    };
+    rawGet(url);
+})();
+</script>
+{% endblock %}
