@@ -61,7 +61,7 @@
                     updateLog(data);
                     return;
                 } else {
-                    if (newStatus != status) {
+                    if (newStatus != status || (newStatus == 'FAILED')) {
                         updateLog(`--- Status change: ${status} -> ${newStatus}`);
                     }
                     updateLog(data);
