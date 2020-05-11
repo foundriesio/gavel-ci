@@ -21,6 +21,7 @@
     let tailElement = $("#console-log-tail");
     let downloadElement = $("#console-raw");
     let statusElement = $("#console-status");
+    let terminalStates = ["PASSED", "FAILED", "PROMOTED"]
     var offset = 0;
     let messageTailWindow = 40;
     var messageTail = [];
@@ -42,6 +43,9 @@
         let messageContent = messageTail.join('\n');
         $(tailElement).text(`...\n${messageContent}`);
     };
+    var runComplete = function (status) {
+        return !status || terminalStates.includes(status);
+    };
     var rawGet = function (url) {
         $.ajax(url, {
             dataType: "text",
@@ -56,12 +60,12 @@
                     } else {
                         updateLog(".");
                     }
-                } else if (!newStatus) { // finished
+                } else if (runComplete(newStatus)) { // finished
                     showDownload();
                     updateLog(data);
                     return;
                 } else {
-                    if (newStatus != status || (newStatus == 'FAILED')) {
+                    if (newStatus != status) {
                         updateLog(`--- Status change: ${status} -> ${newStatus}`);
                     }
                     updateLog(data);
