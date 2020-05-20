@@ -3,11 +3,9 @@
 <h1>Gavel CI Build: <a href="{{url_for('jobserv.project', proj=proj)}}">{{proj}}</a> <a href="{{url_for('jobserv.build',proj=proj, build=build)}}">#{{build}}</a> - {{run}}</h1>
 <h3>
     console
-    <span id='console-raw' style="display:none;">
-        (<a 
+        (<a
           href="{{url_for('jobserv.run_artifact', proj=proj, build=build, run=run, p='console.log')}}"
           download="{{proj}}-{{build}}-{{run}}-console.log">raw</a>)
-    </span>
     <span id='console-status'></span>
 </h3>
 <div>
@@ -19,7 +17,6 @@
 <script type="text/javascript">
 (function () {
     let tailElement = $("#console-log-tail");
-    let downloadElement = $("#console-raw");
     let statusElement = $("#console-status");
     let terminalStates = ["PASSED", "FAILED", "PROMOTED"];
     var offset = 0;
@@ -32,9 +29,6 @@
         let msg = slug ? `: ${slug}` : '';
         $(statusElement).text(msg);
     };
-    var showDownload = function () {
-        $(downloadElement).show();
-    }
     var updateLog = function (message) {
         if (!message) return;
         const messageRows = message.split('\n');
@@ -61,7 +55,6 @@
                         updateLog(".");
                     }
                 } else if (runComplete(newStatus)) { // finished
-                    showDownload();
                     updateLog(data);
                     return;
                 } else {
