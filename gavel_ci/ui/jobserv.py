@@ -1,5 +1,7 @@
 # Copyright (C) 2018 Open Source Foundries
 # Author: Andy Doan <andy@opensourcefoundries.com>
+import logging
+import re
 import requests
 from flask import (
     abort,
@@ -162,6 +164,36 @@ def console(proj, build, run):
 
 
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
+                 'console/progress-pattern')
+def console_progress_pattern(proj, build, run):
+    r = _raw_get(
+        f'/projects/{proj}/builds/{build}/runs/{run}/progress-regex')
+    if r.status_code == 404:
+        return ""
+    elif r.status_code == 200:
+        return r.json()['data']['progress-pattern']
+    return r.content, r.status_code
+
+
+def _progress_from_content(content, regex):
+    # findall doesn't capture names so:
+    matches = list(re.finditer(regex, content))
+    if matches:
+        current = matches[-1].group('current')
+        total = matches[-1].group('total')
+        try:
+            current = int(current)
+            total = int(total)
+            if current == 0:
+                return 0
+            return int(current / total * 100)
+        except ValueError:
+            logging.warning("Unable to convert %s progress %s / %s",
+                            request.url, current, total)
+    return None
+
+
+@blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
                  'console/tail')
 def console_tail(proj, build, run):
     response = _raw_get(
@@ -181,6 +213,13 @@ def console_tail(proj, build, run):
             'x-run-status',
         )
     ]
+
+    regex = request.headers.get('X-PROGRESS-PATTERN')
+    if regex:
+        percent_complete = _progress_from_content(response.content, regex)
+        if percent_complete is not None:
+            pass_through_headers.append(
+                ("x-run-progress", str(percent_complete)))
     return response.content, response.status_code, pass_through_headers
 
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
