@@ -1,6 +1,9 @@
 {% extends "layout.html" %}
 {% block body %}
-<h1>Gavel CI Build: <a href="{{url_for('jobserv.project', proj=proj)}}">{{proj}}</a> <a href="{{url_for('jobserv.build',proj=proj, build=build)}}">#{{build}}</a> - {{run}}</h1>
+<h1>Gavel CI Run:
+  <a href="{{url_for('jobserv.project', proj=proj)}}">{{proj}}</a>
+  <a href="{{url_for('jobserv.build',proj=proj, build=build)}}">#{{build}}</a>
+  - <a href="{{url_for('jobserv.run', proj=project, build=build, run=run)}}">{{run}}</a>
 <h3>
     console
         (<a
@@ -40,14 +43,36 @@
     var runComplete = function (status) {
         return !status || terminalStates.includes(status);
     };
-    var rawGet = function (url) {
+    var findProgressPattern = function() {
+        // browsers don't support named capture groups, so we have to hack
+        // around to let the backend find the progress for us.
+        $.ajax("/projects/{{proj}}/builds/{{build}}/{{run}}/console/progress-pattern", {
+            dataType: "text",
+            success: function (data, s, xhr) {
+                rawGet(url, data, null);
+            },
+            error: function (xhr, s, t) {
+                console.error(`failed to pull progress pattern`);
+                setTimeout(function(){findProgressPattern();}, interval);
+            }
+        });
+    };
+    var rawGet = function (url, progressPattern, progress) {
         $.ajax(url, {
             dataType: "text",
             cache: false,
-            headers: {"X-OFFSET": `${offset}`, Range: "bytes=-2048"},
+            headers: {"X-OFFSET": `${offset}`, Range: "bytes=-2048", "X-PROGRESS-PATTERN": progressPattern},
             success: function (data, s, xhr) {
                 var newStatus = xhr.getResponseHeader('X-RUN-STATUS');
-                showStatus(newStatus);
+                var newProgress = xhr.getResponseHeader('X-RUN-PROGRESS');
+                var statusMsg = newStatus;
+                if (newProgress) {
+                    progress = newProgress;
+                }
+                if (progress) {
+                    statusMsg = newStatus + " - " + progress + "%";
+                }
+                showStatus(statusMsg);
                 if (newStatus == 'QUEUED') {
                     if (!status) { // started
                         updateLog(data);
@@ -56,6 +81,7 @@
                     }
                 } else if (runComplete(newStatus)) { // finished
                     updateLog(data);
+                    showStatus(newStatus); // remove the % complete part
                     return;
                 } else {
                     if (newStatus != status) {
@@ -65,7 +91,7 @@
                 }
                 offset = offset + data.length;
                 status = newStatus;
-                setTimeout(function(){rawGet(url);}, interval);
+                setTimeout(function(){rawGet(url, progressPattern, progress);}, interval);
             },
             error: function (xhr, s, t) {
                 console.error(`failed to pull console log...trying again later`);
@@ -73,7 +99,7 @@
             }
         });
     };
-    rawGet(url);
+    findProgressPattern();
 })();
 </script>
 {% endblock %}
