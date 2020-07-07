@@ -176,6 +176,8 @@ def console_progress_pattern(proj, build, run):
 
 
 def _progress_from_content(content, regex):
+    if isinstance(content, bytes):
+        content = content.decode()
     # findall doesn't capture names so:
     matches = list(re.finditer(regex, content))
     if matches:
