@@ -224,18 +224,36 @@ def console_tail(proj, build, run):
                 ("x-run-progress", str(percent_complete)))
     return response.content, response.status_code, pass_through_headers
 
+
+# A lot of times CI builds a static website. These urls will get redirect
+# to a storage bucket and not render in the browser properly. This is a
+# way to keep a list of file types we want to "host" ourself:
+static_site_types = {
+    'log': 'text/plain',
+    'txt': 'text/plain',
+    'html': 'text/html',
+    'css': 'text/css',
+    'js': 'text/javascript',
+    'ttf': 'font/ttf',
+    'woff2': 'font/woff2',
+    'woff2': 'font/woff2',
+}
+
+
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/'
                  'artifacts/<path:p>')
 def run_artifact(proj, build, run, p):
     # Allow .html to render inside app rather than a redirect
     allow_redirects = False
-    if p.endswith('.html') or p.endswith('.log') or p.endswith('.txt'):
-        # show .txt, log, and .html files inline
+    parts = p.rsplit('.', 1)
+    content_type = None
+    if len(parts) == 2 and parts[1] in static_site_types:
         allow_redirects = True
+        content_type = static_site_types[parts[1]]
     r = _raw_get('/projects/%s/builds/%d/runs/%s/%s' % (proj, build, run, p),
                  allow_redirects=allow_redirects)
-    if p.endswith('.html'):
-        return r.text, r.status_code, {'Content-Type': 'text/html'}
+    if content_type:
+        return r.content, r.status_code, {'Content-Type': content_type}
     resp = make_response(r.text, r.status_code)
     for k, v in r.headers.items():
         resp.headers[k] = v
