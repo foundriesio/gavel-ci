@@ -73,7 +73,16 @@ def about():
 @blueprint.route('status/')
 def status():
     health = _get('/health/runs/')['health']
-    workers = _get('/workers/')['workers']
+    workers = []
+    url = '/workers'
+    while True:
+        data = _get(url)
+        workers.extend(data['workers'])
+        next_page = data.get('next')
+        if next_page:
+            url = "/workers/" + next_page.rsplit('/', 1)[-1]
+        else:
+            break
     return render_template('status.html', health=health, workers=workers)
 
 
