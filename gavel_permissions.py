@@ -84,6 +84,10 @@ def assert_can_build(project):
     assert_internal_user()
 
 
+def assert_worker_list():
+    pass
+
+
 def internal_get(url, *args, **kwargs):
     return JobServUser.get_internal().authenticated_get(url, *args, **kwargs)
 
