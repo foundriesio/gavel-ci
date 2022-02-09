@@ -38,7 +38,7 @@ class JobServUser(User):
             if auth and auth.startswith('Bearer '):
                 return clazz._authenticate_bearer(auth.split(' ', 1)[1])
             else:
-                ApiError('400', 'Invalid Authorization header')
+                ApiError(400, 'Invalid Authorization header')
 
     @staticmethod
     def get_internal():
