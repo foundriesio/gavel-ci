@@ -40,7 +40,7 @@ class User(object):
             'is_admin': self.is_admin,
             'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=30)
         }
-        return jwt.encode(bearer, _jwt_secret(), 'HS256').decode()
+        return jwt.encode(bearer, _jwt_secret(), 'HS256')
 
     def authenticated_get(self, url, *args, **kwargs):
         headers = kwargs.setdefault('headers', {})
