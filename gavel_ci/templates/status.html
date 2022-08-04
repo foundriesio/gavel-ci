@@ -10,6 +10,7 @@
       <th>Project</th>
       <th>Build</th>
       <th>Run</th>
+      <th>Host Tag</th>
     </tr>
   </thead>
   <tbody>
@@ -19,6 +20,7 @@
       <td><a href="{{url_for('jobserv.project', proj=run.project)}}">{{run.project}}</a></td>
       <td><a href="{{url_for('jobserv.build', proj=run.project, build=run.build)}}">{{run.build}}</a></td>
       <td><a href="{{url_for('jobserv.run', proj=run.project, build=run.build, run=run.run)}}">{{run.run}}</a></td>
+      <td>{{run.host_tag}}</td>
     </tr>
 {% endfor %}
   </tbody>
@@ -33,6 +35,7 @@
       <th>Project</th>
       <th>Build</th>
       <th>Run</th>
+      <th>Host Tag</th>
     </tr>
   </thead>
   <tbody>
@@ -44,6 +47,7 @@
       <td><a href="{{url_for('jobserv.project', proj=run.project)}}">{{run.project}}</a></td>
       <td><a href="{{url_for('jobserv.build', proj=run.project, build=run.build)}}">{{run.build}}</a></td>
       <td><a href="{{url_for('jobserv.run', proj=run.project, build=run.build, run=run.run)}}">{{run.run}}</a></td>
+      <td>{{run.host_tag}}</td>
     </tr>
 {% endfor %}
 {% endfor %}
