@@ -286,7 +286,6 @@ def run_simulate(proj, build, run):
 
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/rerun',
                  methods=('POST',))
-@fresh_login_required
 def run_rerun(proj, build, run):
     url = JOBSERV_URL + '/projects/%s/builds/%s/runs/%s/rerun' % (
         proj, build, run)
@@ -298,7 +297,6 @@ def run_rerun(proj, build, run):
 
 @blueprint.route('projects/<project:proj>/builds/<int:build>/<run>/cancel',
                  methods=('POST',))
-@fresh_login_required
 def run_cancel(proj, build, run):
     url = JOBSERV_URL + '/projects/%s/builds/%s/runs/%s/cancel' % (
         proj, build, run)
