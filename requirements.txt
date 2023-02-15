@@ -15,4 +15,4 @@ blinker==1.4
 itsdangerous==2.0.1
 # https://markupsafe.palletsprojects.com/en/2.1.x/changes/#version-2-1-0
 MarkupSafe==2.0.1
-Werkzeug==0.16.1
+Werkzeug==2.2.3
