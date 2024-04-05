@@ -280,7 +280,9 @@ def run_simulate(proj, build, run):
         proj, build, run))
     resp = make_response(r.text, r.status_code)
     for k, v in r.headers.items():
-        resp.headers[k] = v
+        for k, v in r.headers.items():
+        if k.lower() not in ("content-encoding", "transfer-encoding"):
+            resp.headers[k] = v
     return resp
 
 
