@@ -269,7 +269,8 @@ def run_artifact(proj, build, run, p):
         return r.content, r.status_code, {'Content-Type': content_type}
     resp = make_response(r.text, r.status_code)
     for k, v in r.headers.items():
-        resp.headers[k] = v
+        if k.lower() not in ("content-encoding", "transfer-encoding"):
+            resp.headers[k] = v
     return resp
 
 
@@ -280,7 +281,6 @@ def run_simulate(proj, build, run):
         proj, build, run))
     resp = make_response(r.text, r.status_code)
     for k, v in r.headers.items():
-        for k, v in r.headers.items():
         if k.lower() not in ("content-encoding", "transfer-encoding"):
             resp.headers[k] = v
     return resp
