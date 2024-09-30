@@ -3,6 +3,7 @@
 import logging
 import re
 import requests
+from requests.exceptions import ConnectionError, Timeout
 from flask import (
     abort,
     Blueprint,
@@ -30,7 +31,16 @@ def _raw_get(path, **kwargs):
         get = current_user.authenticated_get
 
     url = JOBSERV_URL + path
-    return get(url, **kwargs)
+    try:
+        return get(url, **kwargs)
+    except Timeout:
+        msg = f"Response from {url} took too long. Please try again."
+        logging.error(msg)
+        abort(make_response(msg, 503))
+    except ConnectionError:
+        msg = f"Connection error to {url}. Please try again."
+        logging.error(msg)
+        abort(make_response(msg, 503))
 
 
 def _get(path):
