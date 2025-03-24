@@ -4,7 +4,7 @@ triggers:
     type: github_pr
     runs:
       - name: flake8
-        container: python:3.5-alpine
+        container: python:3.11-alpine
         host-tag: amd64
         script: flake8
 
