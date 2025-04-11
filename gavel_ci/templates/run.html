@@ -69,4 +69,20 @@
   <li><a href="{{url_for('jobserv.run_artifact', proj=project, build=build, run=run.name, p=a)}}">{{a}}</a></li>
 {% endfor %}
 </ul>
+
+<h3>Status Changes</h3>
+<table class="table table-striped table-bordered">
+  <tr><th>Time</th><th>Event</th></tr>
+  {% for event in run.status_events %}
+  <tr>
+    <td>{{event.time}}</li>
+    <td>
+      {{event.status}}
+      {% if event.worker %}
+      / {{event.worker}}
+      {% endif %}
+    </li>
+  </tr>
+  {% endfor %}
+</table>
 {% endblock %}
