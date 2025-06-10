@@ -9,7 +9,7 @@ PyMySQL==1.1.1
 bcrypt==4.2.1
 gunicorn==23.0.0
 pyjwt==2.10.1
-requests==2.32.3
+requests==2.32.4
 blinker==1.9.0
 setuptools==78.1.1
 werkzeug==3.1.3
