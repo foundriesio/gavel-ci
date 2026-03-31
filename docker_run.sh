@@ -54,7 +54,7 @@ if [ -z "$FLASK_DEBUG" ] ; then
 	if [ -n "$STATSD_HOST" ] ; then
 		STATSD="--statsd-host $STATSD_HOST"
 	fi
-	exec /usr/bin/gunicorn $STATSD -n gavel-ci -w4 -b 0.0.0.0:8000 $FLASK_APP
+	exec /usr/local/bin/gunicorn $STATSD -n gavel-ci -w4 -b 0.0.0.0:8000 $FLASK_APP
 fi
 
-exec /usr/bin/flask run -h 0.0.0.0 -p 8000
+exec /usr/local/bin/flask run -h 0.0.0.0 -p 8000
