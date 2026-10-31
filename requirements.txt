@@ -12,5 +12,5 @@ gunicorn==26.2.0
 pyjwt==2.15.0
 requests==2.34.2
 blinker==1.9.0
-setuptools==83.0.0
+setuptools==84.1.0
 werkzeug==3.1.6
